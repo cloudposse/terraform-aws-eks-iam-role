@@ -107,6 +107,7 @@ module "eks_node_group" {
 }
 
 module "eks_iam_role" {
+  source = "../.."
   service_account_name      = "autoscaler"
   service_account_namespace = "kube-system"
 

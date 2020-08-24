@@ -70,9 +70,45 @@ Instead pin to the release tag (e.g. `?ref=tags/x.y.z`) of one of our [latest re
 Here's how to invoke this example module in your projects
 
 ```hcl
-module "example" {
-  source = "https://github.com/cloudposse/terraform-example-module.git?ref=master"
-  example = "Hello world!"
+module "eks_iam_role" {
+  source = "https://github.com/cloudposse/terraform-aws-eks-iam-role.git?ref=master"
+
+  namespace   = var.namespace
+  environment = var.environment
+  stage       = var.stage
+  name        = var.name
+  delimiter   = var.delimiter
+  attributes  = var.attributes
+  tags        = var.tags
+
+  aws_account_number          = local.account_id
+  eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
+
+  # Create a role for the service account named `autoscaler` in the Kubernetes namespace `kube-system`
+  service_account_name      = "autoscaler"
+  service_account_namespace = "kube-system"
+  # JSON IAM policy document to assign to the service account role
+  aws_iam_policy_document = data.aws_iam_policy_document.autoscaler.json
+}
+
+
+data "aws_iam_policy_document" "autoscaler" {
+  statement {
+    sid = "AllowToScaleEKSNodeGroupAutoScalingGroup"
+
+    actions = [
+      "ec2:DescribeLaunchTemplateVersions",
+      "autoscaling:TerminateInstanceInAutoScalingGroup",
+      "autoscaling:SetDesiredCapacity",
+      "autoscaling:DescribeTags",
+      "autoscaling:DescribeLaunchConfigurations",
+      "autoscaling:DescribeAutoScalingInstances",
+      "autoscaling:DescribeAutoScalingGroups"
+    ]
+
+    effect    = "Allow"
+    resources = ["*"]
+  }
 }
 ```
 
@@ -82,7 +118,7 @@ module "example" {
 ## Examples
 
 Here is an example of using this module:
-- [`examples/complete`](https://github.com/cloudposse/terraform-example-module/) - complete example of using this module
+- [`examples/complete`](https://github.com/cloudposse/terraform-aws-eks-iam-role/examples/complete) - complete example of using this module
 
 
 
