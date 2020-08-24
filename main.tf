@@ -6,9 +6,9 @@ module "service_account_label" {
   source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.17.0"
   enabled     = var.enabled
   namespace   = var.namespace
-  name        = var.name
-  stage       = var.stage
   environment = var.environment
+  stage       = var.stage
+  name        = var.name
   delimiter   = var.delimiter
 
   attributes = compact(concat(var.attributes, var.service_account_namespace == var.service_account_name ?
