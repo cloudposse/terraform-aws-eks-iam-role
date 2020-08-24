@@ -6,28 +6,32 @@ variable "enabled" {
 
 variable "namespace" {
   type        = string
-  description = "Namespace, which could be your organization name, e.g. 'eg' or 'cp'"
-}
-
-variable "stage" {
-  type        = string
-  description = "Stage, e.g. 'prod', 'staging', 'dev', 'testing'"
+  default     = ""
+  description = "Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp'"
 }
 
 variable "environment" {
   type        = string
-  description = "Region, e.g. 'uw2', 'uw1', 'en1', 'gbl'"
+  default     = ""
+  description = "Environment, e.g. 'ue2', 'us-east-2', OR 'prod', 'staging', 'dev', 'pre-prod', 'UAT'"
+}
+
+variable "stage" {
+  type        = string
+  default     = ""
+  description = "Stage, e.g. 'prod', 'staging', 'dev', OR 'source', 'build', 'test', 'deploy', 'release'"
 }
 
 variable "name" {
   type        = string
-  description = "Solution name, e.g. 'app' or 'cluster'"
+  default     = ""
+  description = "Solution name, e.g. 'app' or 'jenkins'"
 }
 
 variable "delimiter" {
   type        = string
   default     = "-"
-  description = "Delimiter to be used between `name`, `namespace`, `stage`, etc."
+  description = "Delimiter to be used between `namespace`, `environment`, `stage`, `name` and `attributes`"
 }
 
 variable "attributes" {
@@ -39,7 +43,7 @@ variable "attributes" {
 variable "tags" {
   type        = map(string)
   default     = {}
-  description = "Additional tags (e.g. `map('BusinessUnit`,`XYZ`)"
+  description = "Additional tags (e.g. `map('BusinessUnit','XYZ')`"
 }
 
 variable "service_account_name" {
@@ -55,6 +59,12 @@ variable "service_account_namespace" {
 variable "aws_account_number" {
   type        = string
   description = "AWS account number of EKS cluster owner"
+}
+
+variable "aws_partition" {
+  type        = string
+  default = "aws"
+  description = "AWS partition: 'aws', 'aws-cn', or 'aws-us-gov'"
 }
 
 variable "aws_iam_policy_document" {

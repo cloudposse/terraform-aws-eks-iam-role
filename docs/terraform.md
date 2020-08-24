@@ -19,16 +19,17 @@
 | attributes | Additional attributes (e.g. `1`) | `list(string)` | `[]` | no |
 | aws\_account\_number | AWS account number of EKS cluster owner | `string` | n/a | yes |
 | aws\_iam\_policy\_document | JSON string representation of the IAM policy for this service account | `string` | n/a | yes |
-| delimiter | Delimiter to be used between `name`, `namespace`, `stage`, etc. | `string` | `"-"` | no |
+| aws\_partition | AWS partition: 'aws', 'aws-cn', or 'aws-us-gov' | `string` | `"aws"` | no |
+| delimiter | Delimiter to be used between `namespace`, `environment`, `stage`, `name` and `attributes` | `string` | `"-"` | no |
 | eks\_cluster\_oidc\_issuer\_url | OIDC issuer URL for the EKS cluster (initial "https://" may be omitted) | `string` | n/a | yes |
 | enabled | Set false to prevent creation of resources | `bool` | `true` | no |
-| environment | Region, e.g. 'uw2', 'uw1', 'en1', 'gbl' | `string` | n/a | yes |
-| name | Solution name, e.g. 'app' or 'cluster' | `string` | n/a | yes |
-| namespace | Namespace, which could be your organization name, e.g. 'eg' or 'cp' | `string` | n/a | yes |
+| environment | Environment, e.g. 'ue2', 'us-east-2', OR 'prod', 'staging', 'dev', 'pre-prod', 'UAT' | `string` | `""` | no |
+| name | Solution name, e.g. 'app' or 'jenkins' | `string` | `""` | no |
+| namespace | Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp' | `string` | `""` | no |
 | service\_account\_name | Kubernetes ServiceAccount name | `string` | n/a | yes |
 | service\_account\_namespace | Kubernetes Namespace where service account is deployed | `string` | n/a | yes |
-| stage | Stage, e.g. 'prod', 'staging', 'dev', 'testing' | `string` | n/a | yes |
-| tags | Additional tags (e.g. `map('BusinessUnit`,`XYZ`) | `map(string)` | `{}` | no |
+| stage | Stage, e.g. 'prod', 'staging', 'dev', OR 'source', 'build', 'test', 'deploy', 'release' | `string` | `""` | no |
+| tags | Additional tags (e.g. `map('BusinessUnit','XYZ')` | `map(string)` | `{}` | no |
 
 ## Outputs
 

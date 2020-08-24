@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 
     principals {
       type        = "Federated"
-      identifiers = [format("arn:aws:iam::%s:oidc-provider/%s", var.aws_account_number, local.eks_cluster_oidc_issuer)]
+      identifiers = [format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, var.aws_account_number, local.eks_cluster_oidc_issuer)]
     }
 
     condition {
