@@ -63,7 +63,7 @@ variable "aws_account_number" {
 
 variable "aws_partition" {
   type        = string
-  default = "aws"
+  default     = "aws"
   description = "AWS partition: 'aws', 'aws-cn', or 'aws-us-gov'"
 }
 
