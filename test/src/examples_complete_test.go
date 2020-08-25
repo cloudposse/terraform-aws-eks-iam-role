@@ -61,7 +61,7 @@ func TestExamplesComplete(t *testing.T) {
 
   rand.Seed(time.Now().UnixNano())
 
-  randId := strconv.Itoa(rand.Intn(1000))
+  randId := strconv.Itoa(rand.Intn(100000))
   attributes := []string{randId}
 
   terraformOptions := &terraform.Options{
