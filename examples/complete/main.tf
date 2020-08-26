@@ -5,14 +5,10 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 module "label" {
-  source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.17.0"
-  namespace   = var.namespace
-  environment = var.environment
-  stage       = var.stage
-  name        = var.name
-  delimiter   = var.delimiter
-  attributes  = compact(concat(var.attributes, list("cluster")))
-  tags        = var.tags
+  attributes = compact(concat(local.context.attributes, list("cluster")))
+
+  context = local.context
+  source  = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.17.0"
 }
 
 locals {
@@ -31,40 +27,26 @@ locals {
 }
 
 module "vpc" {
-  source      = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.16.1"
-  namespace   = var.namespace
-  environment = var.environment
-  stage       = var.stage
-  name        = var.name
-  attributes  = var.attributes
-  cidr_block  = "172.16.0.0/16"
-  tags        = local.tags
+  cidr_block = "172.16.0.0/16"
+  tags       = local.tags
+
+  context = local.context
+  source  = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.16.1"
 }
 
 module "subnets" {
-  source               = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=tags/0.27.0"
   availability_zones   = var.availability_zones
-  namespace            = var.namespace
-  environment          = var.environment
-  stage                = var.stage
-  name                 = var.name
-  attributes           = var.attributes
   vpc_id               = module.vpc.vpc_id
   igw_id               = module.vpc.igw_id
   cidr_block           = module.vpc.vpc_cidr_block
   nat_gateway_enabled  = false
   nat_instance_enabled = false
   tags                 = local.tags
+
+  source = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=tags/0.27.0"
 }
 
 module "eks_cluster" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-eks-cluster.git?ref=tags/0.26.2"
-  namespace                    = var.namespace
-  environment                  = var.environment
-  stage                        = var.stage
-  name                         = var.name
-  attributes                   = var.attributes
-  tags                         = var.tags
   region                       = var.region
   vpc_id                       = module.vpc.vpc_id
   subnet_ids                   = module.subnets.public_subnet_ids
@@ -73,6 +55,9 @@ module "eks_cluster" {
   oidc_provider_enabled        = var.oidc_provider_enabled
   enabled_cluster_log_types    = var.enabled_cluster_log_types
   cluster_log_retention_period = var.cluster_log_retention_period
+
+  context = local.context
+  source  = "git::https://github.com/cloudposse/terraform-aws-eks-cluster.git?ref=tags/0.26.2"
 }
 
 # Ensure ordering of resource creation to eliminate the race conditions when applying the Kubernetes Auth ConfigMap.
@@ -88,13 +73,6 @@ data "null_data_source" "wait_for_cluster_and_kubernetes_configmap" {
 }
 
 module "eks_node_group" {
-  source             = "git::https://github.com/cloudposse/terraform-aws-eks-node-group.git?ref=tags/0.7.1"
-  namespace          = var.namespace
-  environment        = var.environment
-  stage              = var.stage
-  name               = var.name
-  attributes         = var.attributes
-  tags               = var.tags
   subnet_ids         = module.subnets.public_subnet_ids
   cluster_name       = data.null_data_source.wait_for_cluster_and_kubernetes_configmap.outputs["cluster_name"]
   instance_types     = var.instance_types
@@ -104,25 +82,20 @@ module "eks_node_group" {
   kubernetes_version = var.kubernetes_version
   kubernetes_labels  = var.kubernetes_labels
   disk_size          = var.disk_size
+
+  context = local.context
+  source  = "git::https://github.com/cloudposse/terraform-aws-eks-node-group.git?ref=tags/0.7.1"
 }
 
 module "eks_iam_role" {
-  source                    = "../.."
-  service_account_name      = "autoscaler"
-  service_account_namespace = "kube-system"
-
-  namespace   = var.namespace
-  environment = var.environment
-  stage       = var.stage
-  name        = var.name
-  delimiter   = var.delimiter
-  attributes  = var.attributes
-  tags        = var.tags
-
+  service_account_name        = "autoscaler"
+  service_account_namespace   = "kube-system"
   aws_account_number          = local.account_id
   eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
 
   aws_iam_policy_document = data.aws_iam_policy_document.autoscaler.json
+  context                 = local.context
+  source                  = "../.."
 }
 
 

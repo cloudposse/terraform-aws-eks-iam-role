@@ -3,19 +3,16 @@ locals {
 }
 
 module "service_account_label" {
-  source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.17.0"
-  enabled     = var.enabled
-  namespace   = var.namespace
-  environment = var.environment
-  stage       = var.stage
-  name        = var.name
-  delimiter   = var.delimiter
-
-  attributes = compact(concat(var.attributes, var.service_account_namespace == var.service_account_name ?
-  [var.service_account_name] : ["${var.service_account_name}@${var.service_account_namespace}"]))
-
-  tags                = var.tags
+  attributes = compact(concat(
+    local.context.attributes, var.service_account_namespace == var.service_account_name ?
+    [var.service_account_name] : ["${var.service_account_name}@${var.service_account_namespace}"]
+  ))
+  # The standard module does not allow @ but we want it
   regex_replace_chars = "/[^a-zA-Z0-9@_-]/"
+
+  context = local.context
+  # source           = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.17.0"
+  source = "/localhost/CP_dev/terraform-null-label"
 }
 
 resource "aws_iam_role" "service_account" {
