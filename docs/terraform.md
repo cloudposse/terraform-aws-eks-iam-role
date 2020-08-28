@@ -1,3 +1,4 @@
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -44,3 +45,4 @@
 | service\_account\_role\_name | IAM role name |
 | service\_account\_role\_unique\_id | IAM role unique ID |
 
+<!-- markdownlint-restore -->

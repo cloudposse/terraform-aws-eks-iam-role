@@ -134,6 +134,7 @@ Available targets:
 
 ```
 <!-- markdownlint-restore -->
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -180,6 +181,7 @@ Available targets:
 | service\_account\_role\_name | IAM role name |
 | service\_account\_role\_unique\_id | IAM role unique ID |
 
+<!-- markdownlint-restore -->
 
 
 
