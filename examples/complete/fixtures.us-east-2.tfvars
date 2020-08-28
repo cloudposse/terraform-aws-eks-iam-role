@@ -12,6 +12,9 @@ stage = "test"
 
 name = "eks"
 
+# We do not include attributes in this file because
+# the test will supply a value for attributes
+
 kubernetes_version = "1.15"
 
 oidc_provider_enabled = true
