@@ -3,16 +3,17 @@ locals {
 }
 
 module "service_account_label" {
-  attributes = compact(concat(
-    local.context.attributes, var.service_account_namespace == var.service_account_name ?
-    [var.service_account_name] : ["${var.service_account_name}@${var.service_account_namespace}"]
-  ))
-  # The standard module does not allow @ but we want it
-  regex_replace_chars = "/[^a-zA-Z0-9@_-]/"
+  source           = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.2"
 
-  context = local.context
-  # source           = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.17.0"
-  source = "/localhost/CP_dev/terraform-null-label"
+  # To remain consistent with our other modules, the service account name goes after
+  # user-supplied attributes, not before.
+  attributes = compact(concat(module.this.attributes, var.service_account_namespace == var.service_account_name ?
+  [var.service_account_name] : ["${var.service_account_name}@${var.service_account_namespace}"]))
+
+  # The standard module does not allow @ but we want it
+  regex_replace_chars = "/[^-a-zA-Z0-9@_]/"
+
+  context = module.this.context
 }
 
 resource "aws_iam_role" "service_account" {
