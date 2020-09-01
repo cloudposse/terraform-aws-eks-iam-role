@@ -71,7 +71,7 @@ Here's how to invoke this example module in your projects
 
 ```hcl
 module "eks_iam_role" {
-  source = "https://github.com/cloudposse/terraform-aws-eks-iam-role.git?ref=master"
+  source = "git::https://github.com/cloudposse/terraform-aws-eks-iam-role.git?ref=master"
 
   namespace   = var.namespace
   environment = var.environment
