@@ -168,6 +168,7 @@ Available targets:
 | name | Solution name, e.g. 'app' or 'jenkins' | `string` | `null` | no |
 | namespace | Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp' | `string` | `null` | no |
 | regex\_replace\_chars | Regex to replace chars with empty string in `namespace`, `environment`, `stage` and `name`.<br>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
+| scope\_role\_to\_namespace\_enabled | Enables scoping the created role to the namespace instead of an individual service account. | `bool` | `false` | no |
 | service\_account\_name | Kubernetes ServiceAccount name | `string` | n/a | yes |
 | service\_account\_namespace | Kubernetes Namespace where service account is deployed | `string` | n/a | yes |
 | stage | Stage, e.g. 'prod', 'staging', 'dev', OR 'source', 'build', 'test', 'deploy', 'release' | `string` | `null` | no |

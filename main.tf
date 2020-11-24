@@ -1,5 +1,7 @@
 locals {
   eks_cluster_oidc_issuer = replace(var.eks_cluster_oidc_issuer_url, "https://", "")
+
+  service_account_scope = var.scope_role_to_namespace_enabled ? "*" : var.service_account_name
 }
 
 module "service_account_label" {
@@ -19,7 +21,7 @@ module "service_account_label" {
 resource "aws_iam_role" "service_account" {
   for_each           = toset(compact([module.service_account_label.id]))
   name               = each.value
-  description        = "Role assumed by Kubernetes ServiceAccount ${var.service_account_namespace}:${var.service_account_name}"
+  description        = "Role assumed by Kubernetes ServiceAccount ${var.service_account_namespace}:${local.service_account_scope}"
   assume_role_policy = data.aws_iam_policy_document.service_account_assume_role[each.value].json
   tags               = module.service_account_label.tags
 }
@@ -40,7 +42,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 
     condition {
       test     = "StringEquals"
-      values   = [format("system:serviceaccount:%s:%s", var.service_account_namespace, var.service_account_name)]
+      values   = [format("system:serviceaccount:%s:%s", var.service_account_namespace, local.service_account_scope)]
       variable = format("%s:sub", local.eks_cluster_oidc_issuer)
     }
   }
@@ -49,7 +51,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 resource "aws_iam_policy" "service_account" {
   for_each    = toset(compact([module.service_account_label.id]))
   name        = each.value
-  description = format("Grant permissions to EKS service account: %s", var.service_account_name)
+  description = "Grant permissions to EKS service account ${var.service_account_namespace}:${local.service_account_scope}"
   policy      = coalesce(var.aws_iam_policy_document, "{}")
 }
 

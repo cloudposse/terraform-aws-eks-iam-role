@@ -28,3 +28,9 @@ variable "eks_cluster_oidc_issuer_url" {
   type        = string
   description = "OIDC issuer URL for the EKS cluster (initial \"https://\" may be omitted)"
 }
+
+variable "scope_role_to_namespace_enabled" {
+  default     = false
+  type        = bool
+  description = "Enables scoping the created role to the namespace instead of an individual service account."
+}
