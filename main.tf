@@ -3,7 +3,8 @@ locals {
 }
 
 module "service_account_label" {
-  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.22.0"
+  source  = "cloudposse/label/null"
+  version = "0.22.0"
 
   # To remain consistent with our other modules, the service account name goes after
   # user-supplied attributes, not before.

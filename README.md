@@ -80,7 +80,9 @@ Here's how to invoke this example module in your projects
 
 ```hcl
 module "eks_iam_role" {
-  source = "git::https://github.com/cloudposse/terraform-aws-eks-iam-role.git?ref=master"
+  source = "cloudposse/eks-iam-role/aws"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version     = "x.x.x"
 
   namespace   = var.namespace
   environment = var.environment
@@ -149,14 +151,14 @@ Available targets:
 | Name | Version |
 |------|---------|
 | terraform | >= 0.12.26 |
-| aws | >= 2.0, < 4.0 |
-| local | ~> 1.2 |
+| aws | >= 2.0 |
+| local | >= 1.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | >= 2.0, < 4.0 |
+| aws | >= 2.0 |
 
 ## Inputs
 
