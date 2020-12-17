@@ -129,7 +129,7 @@ data "aws_iam_policy_document" "autoscaler" {
 ## Examples
 
 Here is an example of using this module:
-- [`examples/complete`](https://github.com/cloudposse/terraform-aws-eks-iam-role/examples/complete) - complete example of using this module
+- [`examples/complete`](https://github.com/cloudposse/terraform-aws-eks-iam-role/tree/master/examples/complete) - complete example of using this module
 
 
 
