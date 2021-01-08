@@ -8,8 +8,7 @@ module "service_account_label" {
 
   # To remain consistent with our other modules, the service account name goes after
   # user-supplied attributes, not before.
-  attributes = var.service_account_namespace == var.service_account_name ?
-  [var.service_account_name] : ["${var.service_account_name}@${var.service_account_namespace}"]
+  attributes = var.service_account_namespace == var.service_account_name ? [var.service_account_name] : ["${var.service_account_name}@${var.service_account_namespace}"]
 
   # The standard module does not allow @ but we want it
   regex_replace_chars = "/[^-a-zA-Z0-9@_]/"
