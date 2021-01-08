@@ -49,7 +49,7 @@ func TestExamplesComplete(t *testing.T) {
 	// Run `terraform output` to get the value of an output variable
 	certManagerRoleName := terraform.Output(t, terraformOptions, "cert-manager_role")
 	// Verify we're getting back the outputs we expect
-	assert.Equal(t, "eg-ue2-test-eks-blue-"+randId+"-cert-manager", certManagerRoleName)
+	assert.Equal(t, "eg-ue2-test-eks-"+randId+"-blue-cert-manager", certManagerRoleName)
 
 	// Run `terraform output` to get the value of an output variable
 	certManagerPolicy := terraform.Output(t, terraformOptions, "cert-manager_policy")
