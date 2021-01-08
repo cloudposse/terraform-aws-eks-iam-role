@@ -4,12 +4,12 @@ locals {
 
 module "service_account_label" {
   source  = "cloudposse/label/null"
-  version = "0.22.0"
+  version = "0.22.1"
 
   # To remain consistent with our other modules, the service account name goes after
   # user-supplied attributes, not before.
-  attributes = compact(concat(module.this.attributes, var.service_account_namespace == var.service_account_name ?
-  [var.service_account_name] : ["${var.service_account_name}@${var.service_account_namespace}"]))
+  attributes = var.service_account_namespace == var.service_account_name ?
+  [var.service_account_name] : ["${var.service_account_name}@${var.service_account_namespace}"]
 
   # The standard module does not allow @ but we want it
   regex_replace_chars = "/[^-a-zA-Z0-9@_]/"
