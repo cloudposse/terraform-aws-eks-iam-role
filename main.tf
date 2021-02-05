@@ -4,7 +4,7 @@ locals {
 
 module "service_account_label" {
   source  = "cloudposse/label/null"
-  version = "0.22.1"
+  version = "0.24.1"
 
   # To remain consistent with our other modules, the service account name goes after
   # user-supplied attributes, not before.
