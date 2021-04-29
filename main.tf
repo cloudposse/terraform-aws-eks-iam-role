@@ -3,28 +3,46 @@ locals {
 
   eks_cluster_oidc_issuer = replace(var.eks_cluster_oidc_issuer_url, "https://", "")
 
-  # If both var.service_account_namespace and var.service_account_name are provided and not equal to "*",
+  # If both var.service_account_namespace and var.service_account_name are provided,
   # then the role ARM will have one of the following formats:
-  # - if var.service_account_namespace != var.service_account_name: arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<service_account_name>@<service_account_namespace>
-  # - if var.service_account_namespace == var.service_account_name: arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<service_account_name>
+  # 1. if var.service_account_namespace != var.service_account_name: arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<optional_name>-<service_account_name>@<service_account_namespace>
+  # 2. if var.service_account_namespace == var.service_account_name: arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<optional_name>-<service_account_name>
 
-  # If var.service_account_name is provided and not equal to "*", and var.service_account_namespace == "*",
-  # then the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<service_account_name>,
+  # 3. If var.service_account_namespace == "" and var.service_account_name is provided,
+  # then the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<optional_name>-<service_account_name>@all,
   # and the policy will use "StringLike" in the test condition to allow ServiceAccounts in any Kubernetes namespace to assume the role (useful for unlimited preview environments)
 
-  # If var.service_account_name == "*",
-  # then `module.this.name` must be provided (to correctly name the role and policy),
-  # and the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<name>,
-  # and the policy will use "StringLike" in the test condition to allow to scope IAM roles to a namespace (allow different ServiceAccounts in the same namespace to assume the role)
+  # 4. If var.service_account_name == "" and var.service_account_namespace is provided,
+  # then the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<optional_name>-all@<service_account_namespace>,
+  # and the policy will use "StringLike" in the test condition to allow to scope the IAM role to a namespace (allow different ServiceAccounts in the same namespace to assume the role)
   # For more details, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html#iam-role-configuration
 
-  service_account_id = var.service_account_namespace == var.service_account_name || var.service_account_namespace == "*" ? var.service_account_name : (
-    format("%s@%s", var.service_account_name, var.service_account_namespace)
+  # 5. If both var.service_account_name == "" and var.service_account_namespace == "",
+  # then the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<optional_name>-all@all,
+  # and the policy will use "StringLike" in the test condition to allow all ServiceAccounts in all Kubernetes namespaces to assume the IAM role
+
+  service_account_namespace_provided                = var.service_account_namespace != "" && var.service_account_namespace != null
+  service_account_name_provided                     = var.service_account_name != "" && var.service_account_name != null
+  service_account_namespace_name_provided           = local.service_account_namespace_provided && local.service_account_name_provided
+  service_account_namespace_name_provided_different = local.service_account_namespace_name_provided && (var.service_account_namespace != var.service_account_name)
+
+  service_account_id_format_map = {
+    1 = format("%s@%s", var.service_account_name, var.service_account_namespace)
+    2 = var.service_account_name
+    3 = format("%s@all", var.service_account_name)
+    4 = format("all@%s", var.service_account_namespace)
+    5 = "all@all"
+  }
+
+  case = local.service_account_namespace_name_provided_different ? "1" : (
+    local.service_account_namespace_name_provided ? "2" : (
+      local.service_account_name_provided ? "3" : (
+        local.service_account_namespace_provided ? "4" : "5"
+      )
+    )
   )
 
-  attributes = var.service_account_name == "*" ? [] : [local.service_account_id]
-
-  use_string_like_in_policy_condition = var.service_account_namespace == "*" || var.service_account_name == "*"
+  service_account_id = local.service_account_id_format_map[local.case]
 }
 
 module "service_account_label" {
@@ -33,7 +51,7 @@ module "service_account_label" {
 
   # To remain consistent with our other modules, the service account name goes after
   # user-supplied attributes, not before.
-  attributes = local.attributes
+  attributes = [local.service_account_id]
 
   # The standard module does not allow @ but we want it
   regex_replace_chars = "/[^-a-zA-Z0-9@_]/"
@@ -44,7 +62,7 @@ module "service_account_label" {
 resource "aws_iam_role" "service_account" {
   for_each           = toset(compact([module.service_account_label.id]))
   name               = each.value
-  description        = format("Role assumed by Kubernetes ServiceAccount %s", local.service_account_id)
+  description        = format("Role assumed by EKS ServiceAccount %s", local.service_account_id)
   assume_role_policy = data.aws_iam_policy_document.service_account_assume_role[each.value].json
   tags               = module.service_account_label.tags
 }
@@ -65,8 +83,8 @@ data "aws_iam_policy_document" "service_account_assume_role" {
     }
 
     condition {
-      test     = local.use_string_like_in_policy_condition ? "StringLike" : "StringEquals"
-      values   = [format("system:serviceaccount:%s:%s", var.service_account_namespace, var.service_account_name)]
+      test     = local.service_account_namespace_provided == false || local.service_account_name_provided == false ? "StringLike" : "StringEquals"
+      values   = [format("system:serviceaccount:%s:%s", coalesce(var.service_account_namespace, "*"), coalesce(var.service_account_name, "*"))]
       variable = format("%s:sub", local.eks_cluster_oidc_issuer)
     }
   }
@@ -75,7 +93,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 resource "aws_iam_policy" "service_account" {
   for_each    = toset(compact([module.service_account_label.id]))
   name        = each.value
-  description = format("Grant permissions to Kubernetes ServiceAccount %s", local.service_account_id)
+  description = format("Grant permissions to EKS ServiceAccount %s", local.service_account_id)
   policy      = coalesce(var.aws_iam_policy_document, "{}")
 }
 
