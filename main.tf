@@ -4,14 +4,12 @@ locals {
   eks_cluster_oidc_issuer = replace(var.eks_cluster_oidc_issuer_url, "https://", "")
 
   # If both var.service_account_namespace and var.service_account_name are provided and not equal to "*",
-  # then `module.this.name` must not be set,
-  # and the role ARM will have one of the following formats:
+  # then the role ARM will have one of the following formats:
   # - if var.service_account_namespace != var.service_account_name: arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<service_account_name>@<service_account_namespace>
   # - if var.service_account_namespace == var.service_account_name: arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<service_account_name>
 
   # If var.service_account_name is provided and not equal to "*", and var.service_account_namespace == "*",
-  # then `module.this.name` must not be set,
-  # and the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<service_account_name>,
+  # then the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<service_account_name>,
   # and the policy will use "StringLike" in the test condition to allow ServiceAccounts in any Kubernetes namespace to assume the role (useful for unlimited preview environments)
 
   # If var.service_account_name == "*",
