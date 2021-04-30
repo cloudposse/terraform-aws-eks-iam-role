@@ -19,7 +19,7 @@ locals {
 
   # 5. If both var.service_account_name == "" and var.service_account_namespace == "",
   # then the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<optional_name>-all@all,
-  # and the policy will use "StringLike" in the test condition to allow all ServiceAccounts in all Kubernetes namespaces to assume the IAM role
+  # and the policy will use wildcards for both the namespace and the service account name in the test condition to allow all ServiceAccounts in all Kubernetes namespaces to assume the IAM role (not recommended).
 
   service_account_namespace_provided                = var.service_account_namespace != "" && var.service_account_namespace != null
   service_account_name_provided                     = var.service_account_name != "" && var.service_account_name != null
