@@ -83,7 +83,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
     }
 
     condition {
-      test     = local.service_account_namespace_provided == false || local.service_account_name_provided == false ? "StringLike" : "StringEquals"
+      test     = "StringLike"
       values   = [format("system:serviceaccount:%s:%s", coalesce(var.service_account_namespace, "*"), coalesce(var.service_account_name, "*"))]
       variable = format("%s:sub", local.eks_cluster_oidc_issuer)
     }
