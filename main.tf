@@ -19,30 +19,11 @@ locals {
 
   # 5. If both var.service_account_name == "" and var.service_account_namespace == "",
   # then the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<optional_name>-all@all,
-  # and the policy will use wildcards for both the namespace and the service account name in the test condition to allow all ServiceAccounts in all Kubernetes namespaces to assume the IAM role (not recommended).
+  # and the policy will use wildcards for both the namespace and the service account name in the test condition to allow all ServiceAccounts
+  # in all Kubernetes namespaces to assume the IAM role (not recommended).
 
-  service_account_namespace_provided                = var.service_account_namespace != "" && var.service_account_namespace != null
-  service_account_name_provided                     = var.service_account_name != "" && var.service_account_name != null
-  service_account_namespace_name_provided           = local.service_account_namespace_provided && local.service_account_name_provided
-  service_account_namespace_name_provided_different = local.service_account_namespace_name_provided && (var.service_account_namespace != var.service_account_name)
-
-  service_account_id_format_map = {
-    1 = format("%s@%s", var.service_account_name, var.service_account_namespace)
-    2 = var.service_account_name
-    3 = format("%s@all", var.service_account_name)
-    4 = format("all@%s", var.service_account_namespace)
-    5 = "all@all"
-  }
-
-  case = local.service_account_namespace_name_provided_different ? "1" : (
-    local.service_account_namespace_name_provided ? "2" : (
-      local.service_account_name_provided ? "3" : (
-        local.service_account_namespace_provided ? "4" : "5"
-      )
-    )
-  )
-
-  service_account_id = local.service_account_id_format_map[local.case]
+  service_account_long_id = format("%v@%v", coalesce(var.service_account_name, "all"), coalesce(var.service_account_namespace, "all"))
+  service_account_id      = trimsuffix(local.service_account_long_id, format("@%v", var.service_account_name))
 }
 
 module "service_account_label" {
