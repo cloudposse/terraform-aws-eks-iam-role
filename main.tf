@@ -14,7 +14,7 @@ locals {
 
   # 4. If var.service_account_name == "" and var.service_account_namespace is provided,
   # then the role ARM will have format arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<optional_name>-all@<service_account_namespace>,
-  # and the policy will use "StringLike" in the test condition to allow to scope the IAM role to a namespace (allow different ServiceAccounts in the same namespace to assume the role)
+  # and the policy will use a wildcard for the service account name in the test condition to allow any ServiceAccount in the given namespace to assume the role.
   # For more details, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html#iam-role-configuration
 
   # 5. If both var.service_account_name == "" and var.service_account_namespace == "",
