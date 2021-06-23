@@ -79,7 +79,7 @@ resource "aws_iam_policy" "service_account" {
 }
 
 resource "aws_iam_role_policy_attachment" "service_account" {
-  for_each   = toset(compact([module.service_account_label.id]))
+  for_each   = var.aws_iam_policy_document != null ? toset(compact([module.service_account_label.id])) : []
   role       = aws_iam_role.service_account[each.value].name
   policy_arn = aws_iam_policy.service_account[each.value].arn
 }
