@@ -3,7 +3,7 @@ locals {
 
   eks_cluster_oidc_issuer = replace(var.eks_cluster_oidc_issuer_url, "https://", "")
 
-  local.aws_account_number = coalesce(var.aws_account_number, data.aws_caller_identity.current.account_id)
+  aws_account_number = coalesce(var.aws_account_number, data.aws_caller_identity.current.account_id)
 
   # If both var.service_account_namespace and var.service_account_name are provided,
   # then the role ARM will have one of the following formats:
