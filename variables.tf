@@ -28,3 +28,8 @@ variable "eks_cluster_oidc_issuer_url" {
   type        = string
   description = "OIDC issuer URL for the EKS cluster (initial \"https://\" may be omitted)"
 }
+
+variable "managed_iam_policy" {
+  type        = bool
+  description = "Create a managed IAM policy that can be reused. Set to `false` to use an inline IAM policy."
+  default     = true
