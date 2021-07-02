@@ -24,7 +24,7 @@ locals {
 
   service_account_long_id = format("%v@%v", coalesce(var.service_account_name, "all"), coalesce(var.service_account_namespace, "all"))
   service_account_id      = trimsuffix(local.service_account_long_id, format("@%v", var.service_account_name))
-  
+
   policy = coalesce(var.aws_iam_policy_document, "{}")
 }
 
