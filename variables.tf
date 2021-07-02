@@ -10,6 +10,7 @@ variable "service_account_namespace" {
 
 variable "aws_account_number" {
   type        = string
+  default     = null
   description = "AWS account number of EKS cluster owner"
 }
 
