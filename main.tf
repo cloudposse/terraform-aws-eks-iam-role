@@ -24,6 +24,8 @@ locals {
 
   service_account_long_id = format("%v@%v", coalesce(var.service_account_name, "all"), coalesce(var.service_account_namespace, "all"))
   service_account_id      = trimsuffix(local.service_account_long_id, format("@%v", var.service_account_name))
+  
+  policy = coalesce(var.aws_iam_policy_document, "{}")
 }
 
 module "service_account_label" {
@@ -71,15 +73,25 @@ data "aws_iam_policy_document" "service_account_assume_role" {
   }
 }
 
+# managed IAM policy
+
 resource "aws_iam_policy" "service_account" {
-  for_each    = toset(compact([module.service_account_label.id]))
+  for_each    = var.managed_iam_policy ? toset(compact([module.service_account_label.id])) : []
   name        = each.value
   description = format("Grant permissions to EKS ServiceAccount %s", local.service_account_id)
-  policy      = coalesce(var.aws_iam_policy_document, "{}")
+  policy      = local.policy
 }
 
 resource "aws_iam_role_policy_attachment" "service_account" {
-  for_each   = toset(compact([module.service_account_label.id]))
+  for_each   = var.managed_iam_policy ? toset(compact([module.service_account_label.id])) : []
   role       = aws_iam_role.service_account[each.value].name
   policy_arn = aws_iam_policy.service_account[each.value].arn
+}
+
+# inline IAM policy
+
+resource "aws_iam_role_policy" "service_account" {
+  for_each = var.managed_iam_policy == false ? toset(compact([module.service_account_label.id])) : []
+  role     = aws_iam_role.service_account[each.value].name
+  policy   = local.policy
 }
