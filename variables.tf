@@ -21,6 +21,7 @@ variable "aws_partition" {
 
 variable "aws_iam_policy_document" {
   type        = string
+  default     = null
   description = "JSON string representation of the IAM policy for this service account"
 }
 
