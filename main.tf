@@ -76,14 +76,14 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 }
 
 resource "aws_iam_policy" "service_account" {
-  for_each    = toset(compact([module.service_account_label.id]))
+  for_each    = var.aws_iam_policy_document != null ? toset(compact([module.service_account_label.id])) : []
   name        = each.value
   description = format("Grant permissions to EKS ServiceAccount %s", local.service_account_id)
   policy      = coalesce(var.aws_iam_policy_document, "{}")
 }
 
 resource "aws_iam_role_policy_attachment" "service_account" {
-  for_each   = toset(compact([module.service_account_label.id]))
+  for_each   = var.aws_iam_policy_document != null ? toset(compact([module.service_account_label.id])) : []
   role       = aws_iam_role.service_account[each.value].name
   policy_arn = aws_iam_policy.service_account[each.value].arn
 }
