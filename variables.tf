@@ -10,7 +10,8 @@ variable "service_account_namespace" {
 
 variable "aws_account_number" {
   type        = string
-  description = "AWS account number of EKS cluster owner"
+  default     = null
+  description = "AWS account number of EKS cluster owner. If an AWS account number is not provided, the current aws provider account number will be used."
 }
 
 variable "aws_partition" {
