@@ -3,6 +3,8 @@ locals {
 
   eks_cluster_oidc_issuer = replace(var.eks_cluster_oidc_issuer_url, "https://", "")
 
+  aws_account_number = coalesce(var.aws_account_number, data.aws_caller_identity.current.account_id)
+
   # If both var.service_account_namespace and var.service_account_name are provided,
   # then the role ARM will have one of the following formats:
   # 1. if var.service_account_namespace != var.service_account_name: arn:aws:iam::<account_number>:role/<namespace>-<environment>-<stage>-<optional_name>-<service_account_name>@<service_account_namespace>
@@ -27,6 +29,8 @@ locals {
 
   policy = coalesce(var.aws_iam_policy_document, "{}")
 }
+
+data "aws_caller_identity" "current" {}
 
 module "service_account_label" {
   source  = "cloudposse/label/null"
@@ -62,7 +66,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 
     principals {
       type        = "Federated"
-      identifiers = [format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, var.aws_account_number, local.eks_cluster_oidc_issuer)]
+      identifiers = [format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, local.eks_cluster_oidc_issuer)]
     }
 
     condition {
@@ -80,6 +84,7 @@ resource "aws_iam_policy" "service_account" {
   name        = each.value
   description = format("Grant permissions to EKS ServiceAccount %s", local.service_account_id)
   policy      = local.policy
+  tags        = module.service_account_label.tags
 }
 
 resource "aws_iam_role_policy_attachment" "service_account" {
