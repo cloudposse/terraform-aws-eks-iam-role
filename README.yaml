@@ -66,7 +66,7 @@ description: |-
 
 # How to use this module. Should be an easy example to copy and paste.
 usage: |-
-  Here's how to invoke this example module in your projects
+  Here's how to invoke this module in your projects
 
   ```hcl
   module "eks_iam_role" {
@@ -89,9 +89,8 @@ usage: |-
     service_account_name      = "autoscaler"
     service_account_namespace = "kube-system"
     # JSON IAM policy document to assign to the service account role
-    aws_iam_policy_document = data.aws_iam_policy_document.autoscaler.json
+    aws_iam_policy_document = [data.aws_iam_policy_document.autoscaler.json]
   }
-
 
   data "aws_iam_policy_document" "autoscaler" {
     statement {
@@ -133,3 +132,5 @@ contributors:
     github: "osterman"
   - name: "Andriy Knysh"
     github: "aknysh"
+  - name: "RB"
+    github: "nitrocode"
