@@ -19,7 +19,6 @@ module "autoscaler_role" {
   context = module.this.context
 }
 
-
 data "aws_iam_policy_document" "autoscaler" {
   statement {
     sid = "AllowToScaleEKSNodeGroupAutoScalingGroup"
@@ -55,11 +54,10 @@ module "cert-manager_role" {
   # Rather than create a whole cluster, just fake the OIDC URL
   # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
   eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
-  aws_iam_policy_document     = data.aws_iam_policy_document.cert-manager.json
+  aws_iam_policy_document     = [data.aws_iam_policy_document.cert-manager.json]
 
   context = module.this.context
 }
-
 
 data "aws_iam_policy_document" "cert-manager" {
   statement {
@@ -73,7 +71,6 @@ data "aws_iam_policy_document" "cert-manager" {
     resources = ["*"]
   }
 }
-
 
 data "aws_iam_policy" "cert-manager" {
   arn = module.cert-manager_role.service_account_policy_arn
