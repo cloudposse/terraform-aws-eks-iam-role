@@ -27,10 +27,10 @@ locals {
   service_account_long_id = format("%v@%v", coalesce(var.service_account_name, "all"), coalesce(var.service_account_namespace, "all"))
   service_account_id      = trimsuffix(local.service_account_long_id, format("@%v", var.service_account_name))
 
-  # Check if the length is greater than 0, if it contains a value of a list(string) or string, it will return true, otherwise return null
+  # Check if the length is greater than 0, if it contains a value of a list(string) or string, it will return true, otherwise return {}
   # Try to return the first element of it which will return a value if it is a list(string)
   # If the try fails, return the variable itself if it's a string
-  aws_iam_policy_document = length(var.aws_iam_policy_document) > 0 ? try(element(var.aws_iam_policy_document, 0), var.aws_iam_policy_document) : null
+  aws_iam_policy_document = length(var.aws_iam_policy_document) > 0 ? try(element(var.aws_iam_policy_document, 0), var.aws_iam_policy_document) : "{}"
 }
 
 data "aws_caller_identity" "current" {}
