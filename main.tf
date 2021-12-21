@@ -26,6 +26,9 @@ locals {
 
   service_account_long_id = format("%v@%v", coalesce(var.service_account_name, "all"), coalesce(var.service_account_namespace, "all"))
   service_account_id      = trimsuffix(local.service_account_long_id, format("@%v", var.service_account_name))
+
+  # Try to return the first element, if that doesn't work, try the tostring approach
+  aws_iam_policy_document = try(var.aws_iam_policy_document[0], tostring(var.aws_iam_policy_document), "{}")
 }
 
 data "aws_caller_identity" "current" {}
@@ -76,15 +79,15 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 }
 
 resource "aws_iam_policy" "service_account" {
-  for_each    = var.aws_iam_policy_document != null ? toset(compact([module.service_account_label.id])) : []
+  for_each    = length(var.aws_iam_policy_document) > 0 ? toset(compact([module.service_account_label.id])) : []
   name        = each.value
   description = format("Grant permissions to EKS ServiceAccount %s", local.service_account_id)
-  policy      = coalesce(var.aws_iam_policy_document, "{}")
+  policy      = local.aws_iam_policy_document
   tags        = module.service_account_label.tags
 }
 
 resource "aws_iam_role_policy_attachment" "service_account" {
-  for_each   = var.aws_iam_policy_document != null ? toset(compact([module.service_account_label.id])) : []
+  for_each   = length(var.aws_iam_policy_document) > 0 ? toset(compact([module.service_account_label.id])) : []
   role       = aws_iam_role.service_account[each.value].name
   policy_arn = aws_iam_policy.service_account[each.value].arn
 }
