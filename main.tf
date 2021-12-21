@@ -28,7 +28,7 @@ locals {
   service_account_id      = trimsuffix(local.service_account_long_id, format("@%v", var.service_account_name))
 
   # Try to return the first element, if that doesn't work, try the tostring approach
-  aws_iam_policy_document = try(var.zone_id[0], tostring(var.zone_id), "{}")
+  aws_iam_policy_document = try(var.aws_iam_policy_document[0], tostring(var.aws_iam_policy_document), "{}")
 }
 
 data "aws_caller_identity" "current" {}
