@@ -26,6 +26,11 @@ locals {
 
   service_account_long_id = format("%v@%v", coalesce(var.service_account_name, "all"), coalesce(var.service_account_namespace, "all"))
   service_account_id      = trimsuffix(local.service_account_long_id, format("@%v", var.service_account_name))
+
+  # Check if the length is greater than 0, if it contains a value of a list(string) or string, it will return true, otherwise return null
+  # Try to return the first element of it which will return a value if it is a list(string)
+  # If the try fails, return the variable itself if it's a string
+  aws_iam_policy_document = length(var.aws_iam_policy_document) > 0 ? try(element(var.aws_iam_policy_document, 0), var.aws_iam_policy_document) : null
 }
 
 data "aws_caller_identity" "current" {}
@@ -79,7 +84,7 @@ resource "aws_iam_policy" "service_account" {
   for_each    = length(var.aws_iam_policy_document) > 0 ? toset(compact([module.service_account_label.id])) : []
   name        = each.value
   description = format("Grant permissions to EKS ServiceAccount %s", local.service_account_id)
-  policy      = coalesce(var.aws_iam_policy_document[0], "{}")
+  policy      = local.aws_iam_policy_document
   tags        = module.service_account_label.tags
 }
 

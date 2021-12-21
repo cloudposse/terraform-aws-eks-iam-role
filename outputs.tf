@@ -24,16 +24,16 @@ output "service_account_role_arn" {
 }
 
 output "service_account_policy_name" {
-  value       = local.enabled && var.aws_iam_policy_document != null ? values(aws_iam_policy.service_account)[0].name : null
+  value       = local.enabled && length(var.aws_iam_policy_document) > 0 ? values(aws_iam_policy.service_account)[0].name : null
   description = "IAM policy name"
 }
 
 output "service_account_policy_id" {
-  value       = local.enabled && var.aws_iam_policy_document != null ? values(aws_iam_policy.service_account)[0].id : null
+  value       = local.enabled && length(var.aws_iam_policy_document) > 0 ? values(aws_iam_policy.service_account)[0].id : null
   description = "IAM policy ID"
 }
 
 output "service_account_policy_arn" {
-  value       = local.enabled && var.aws_iam_policy_document != null ? values(aws_iam_policy.service_account)[0].arn : null
+  value       = local.enabled && length(var.aws_iam_policy_document) > 0 ? values(aws_iam_policy.service_account)[0].arn : null
   description = "IAM policy ARN"
 }

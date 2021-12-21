@@ -21,14 +21,9 @@ variable "aws_partition" {
 }
 
 variable "aws_iam_policy_document" {
-  type        = list(string)
+  type        = any
   default     = []
   description = "JSON string representation of the IAM policy for this service account"
-
-  validation {
-    condition     = length(var.aws_iam_policy_document) < 2
-    error_message = "Only 1 IAM policy document can be added."
-  }
 }
 
 variable "eks_cluster_oidc_issuer_url" {
