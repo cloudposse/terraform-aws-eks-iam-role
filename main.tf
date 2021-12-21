@@ -30,7 +30,7 @@ locals {
   # Check if the length is greater than 0, if it contains a value of a list(string) or string, it will return true, otherwise return {}
   # Try to return the first element of it which will return a value if it is a list(string)
   # If the try fails, return the variable itself if it's a string
-  aws_iam_policy_document = length(var.aws_iam_policy_document) > 0 ? try(element(var.aws_iam_policy_document, 0), var.aws_iam_policy_document) : "{}"
+  aws_iam_policy_document = try(var.zone_id[0], tostring(var.zone_id), "{}")
 }
 
 data "aws_caller_identity" "current" {}
