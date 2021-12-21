@@ -23,7 +23,12 @@ variable "aws_partition" {
 variable "aws_iam_policy_document" {
   type        = any
   default     = []
-  description = "JSON string representation of the IAM policy for this service account"
+  description = <<-EOT
+    JSON string representation of the IAM policy for this service account as list of string (0 or 1 items).
+    If empty, no custom IAM policy document will be used. If the list contains a single document, a custom
+    IAM policy will be created and attached to the IAM role.
+    Can also be a plain string, but that use is DEPRECATED because of Terraform issues.
+    EOT
 }
 
 variable "eks_cluster_oidc_issuer_url" {
