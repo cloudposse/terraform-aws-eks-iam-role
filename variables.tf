@@ -37,6 +37,6 @@ variable "eks_cluster_oidc_issuer_url" {
 
   validation {
     condition     = length(var.eks_cluster_oidc_issuer_url) > 0
-    error_message = "The eks_cluster_oidc_issuer_url value must have a value"
+    error_message = "The eks_cluster_oidc_issuer_url value must have a value."
   }
 }
