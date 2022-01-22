@@ -34,4 +34,9 @@ variable "aws_iam_policy_document" {
 variable "eks_cluster_oidc_issuer_url" {
   type        = string
   description = "OIDC issuer URL for the EKS cluster (initial \"https://\" may be omitted)"
+
+  validation {
+    condition     = length(var.eks_cluster_oidc_issuer_url) > 0
+    error_message = "The eks_cluster_oidc_issuer_url value must have a value."
+  }
 }
