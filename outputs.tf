@@ -9,31 +9,31 @@ output "service_account_name" {
 }
 
 output "service_account_role_name" {
-  value       = local.enabled ? values(aws_iam_role.service_account)[0].name : null
+  value       = local.enabled ? aws_iam_role.service_account[0].name : null
   description = "IAM role name"
 }
 
 output "service_account_role_unique_id" {
-  value       = local.enabled ? values(aws_iam_role.service_account)[0].unique_id : null
+  value       = local.enabled ? aws_iam_role.service_account[0].unique_id : null
   description = "IAM role unique ID"
 }
 
 output "service_account_role_arn" {
-  value       = local.enabled ? values(aws_iam_role.service_account)[0].arn : null
+  value       = local.enabled ? aws_iam_role.service_account[0].arn : null
   description = "IAM role ARN"
 }
 
 output "service_account_policy_name" {
-  value       = local.enabled && length(var.aws_iam_policy_document) > 0 ? values(aws_iam_policy.service_account)[0].name : null
+  value       = local.aws_policy_enabled ? aws_iam_policy.service_account[0].name : null
   description = "IAM policy name"
 }
 
 output "service_account_policy_id" {
-  value       = local.enabled && length(var.aws_iam_policy_document) > 0 ? values(aws_iam_policy.service_account)[0].id : null
+  value       = local.aws_policy_enabled ? aws_iam_policy.service_account[0].id : null
   description = "IAM policy ID"
 }
 
 output "service_account_policy_arn" {
-  value       = local.enabled && length(var.aws_iam_policy_document) > 0 ? values(aws_iam_policy.service_account)[0].arn : null
+  value       = local.aws_policy_enabled ? aws_iam_policy.service_account[0].arn : null
   description = "IAM policy ARN"
 }

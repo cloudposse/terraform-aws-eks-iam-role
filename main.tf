@@ -1,5 +1,8 @@
 locals {
-  enabled = module.this.enabled
+  enabled                  = module.this.enabled
+  enabled_count            = local.enabled ? 1 : 0
+  aws_policy_enabled       = local.enabled && (length(var.aws_iam_policy_document) > 0)
+  aws_policy_enabled_count = local.aws_policy_enabled ? 1 : 0
 
   eks_cluster_oidc_issuer = replace(var.eks_cluster_oidc_issuer_url, "https://", "")
 
@@ -48,16 +51,14 @@ module "service_account_label" {
 }
 
 resource "aws_iam_role" "service_account" {
-  for_each           = toset(compact([module.service_account_label.id]))
-  name               = each.value
+  count              = local.enabled_count
+  name               = module.service_account_label.id
   description        = format("Role assumed by EKS ServiceAccount %s", local.service_account_id)
-  assume_role_policy = data.aws_iam_policy_document.service_account_assume_role[each.value].json
+  assume_role_policy = data.aws_iam_policy_document.service_account_assume_role.json
   tags               = module.service_account_label.tags
 }
 
 data "aws_iam_policy_document" "service_account_assume_role" {
-  for_each = toset(compact([module.service_account_label.id]))
-
   statement {
     actions = [
       "sts:AssumeRoleWithWebIdentity"
@@ -79,15 +80,15 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 }
 
 resource "aws_iam_policy" "service_account" {
-  for_each    = length(var.aws_iam_policy_document) > 0 ? toset(compact([module.service_account_label.id])) : []
-  name        = each.value
+  count       = local.aws_policy_enabled_count
+  name        = module.service_account_label.id
   description = format("Grant permissions to EKS ServiceAccount %s", local.service_account_id)
   policy      = local.aws_iam_policy_document
   tags        = module.service_account_label.tags
 }
 
 resource "aws_iam_role_policy_attachment" "service_account" {
-  for_each   = length(var.aws_iam_policy_document) > 0 ? toset(compact([module.service_account_label.id])) : []
-  role       = aws_iam_role.service_account[each.value].name
-  policy_arn = aws_iam_policy.service_account[each.value].arn
+  count      = local.aws_policy_enabled_count
+  role       = aws_iam_role.service_account[0].name
+  policy_arn = aws_iam_policy.service_account[0].arn
 }
