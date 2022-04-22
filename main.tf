@@ -82,7 +82,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 }
 
 resource "aws_iam_policy" "service_account" {
-  count       = local.iam_policy_enabled > 0 ? 1 :0
+  count       = local.iam_policy_enabled > 0 ? 1 : 0
   name        = module.service_account_label.id
   description = format("Grant permissions to EKS ServiceAccount %s", local.service_account_id)
   policy      = local.aws_iam_policy_document
