@@ -1,12 +1,9 @@
 locals {
-  enabled                  = module.this.enabled
-  enabled_count            = local.enabled ? 1 : 0
-  aws_policy_enabled       = local.enabled && (length(var.aws_iam_policy_document) > 0)
-  aws_policy_enabled_count = local.aws_policy_enabled ? 1 : 0
+  enabled = module.this.enabled
 
   eks_cluster_oidc_issuer = replace(var.eks_cluster_oidc_issuer_url, "https://", "")
 
-  aws_account_number = coalesce(var.aws_account_number, data.aws_caller_identity.current.account_id)
+  aws_account_number = local.enabled ? coalesce(var.aws_account_number, data.aws_caller_identity.current[0].account_id) : ""
 
   # If both var.service_account_namespace and var.service_account_name are provided,
   # then the role ARM will have one of the following formats:
@@ -32,9 +29,12 @@ locals {
 
   # Try to return the first element, if that doesn't work, try the tostring approach
   aws_iam_policy_document = try(var.aws_iam_policy_document[0], tostring(var.aws_iam_policy_document), "{}")
+  iam_policy_enabled      = local.enabled && length(var.aws_iam_policy_document) > 0
 }
 
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+  count = local.enabled ? 1 : 0
+}
 
 module "service_account_label" {
   source  = "cloudposse/label/null"
@@ -51,14 +51,16 @@ module "service_account_label" {
 }
 
 resource "aws_iam_role" "service_account" {
-  count              = local.enabled_count
+  count              = local.enabled ? 1 : 0
   name               = module.service_account_label.id
   description        = format("Role assumed by EKS ServiceAccount %s", local.service_account_id)
-  assume_role_policy = data.aws_iam_policy_document.service_account_assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.service_account_assume_role[0].json
   tags               = module.service_account_label.tags
 }
 
 data "aws_iam_policy_document" "service_account_assume_role" {
+  count = local.enabled ? 1 : 0
+
   statement {
     actions = [
       "sts:AssumeRoleWithWebIdentity"
@@ -80,7 +82,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 }
 
 resource "aws_iam_policy" "service_account" {
-  count       = local.aws_policy_enabled_count
+  count       = local.iam_policy_enabled > 0 ? 1 :0
   name        = module.service_account_label.id
   description = format("Grant permissions to EKS ServiceAccount %s", local.service_account_id)
   policy      = local.aws_iam_policy_document
@@ -88,7 +90,7 @@ resource "aws_iam_policy" "service_account" {
 }
 
 resource "aws_iam_role_policy_attachment" "service_account" {
-  count      = local.aws_policy_enabled_count
+  count      = local.iam_policy_enabled > 0 ? 1 : 0
   role       = aws_iam_role.service_account[0].name
   policy_arn = aws_iam_policy.service_account[0].arn
 }
