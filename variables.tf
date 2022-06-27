@@ -40,3 +40,9 @@ variable "eks_cluster_oidc_issuer_url" {
     error_message = "The eks_cluster_oidc_issuer_url value must have a value."
   }
 }
+
+variable "permissions_boundary" {
+  type        = string
+  description = "If provided, IAM role will be created with this permissions boundary attached"
+  default     = null
+}
