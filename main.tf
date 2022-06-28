@@ -51,12 +51,12 @@ module "service_account_label" {
 }
 
 resource "aws_iam_role" "service_account" {
-  count                 = local.enabled ? 1 : 0
-  name                  = module.service_account_label.id
-  description           = format("Role assumed by EKS ServiceAccount %s", local.service_account_id)
-  assume_role_policy    = data.aws_iam_policy_document.service_account_assume_role[0].json
-  tags                  = module.service_account_label.tags
-  permissions_boundary  = var.permissions_boundary
+  count                = local.enabled ? 1 : 0
+  name                 = module.service_account_label.id
+  description          = format("Role assumed by EKS ServiceAccount %s", local.service_account_id)
+  assume_role_policy   = data.aws_iam_policy_document.service_account_assume_role[0].json
+  tags                 = module.service_account_label.tags
+  permissions_boundary = var.permissions_boundary
 }
 
 data "aws_iam_policy_document" "service_account_assume_role" {
