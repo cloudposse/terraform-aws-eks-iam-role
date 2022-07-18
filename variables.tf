@@ -43,6 +43,6 @@ variable "eks_cluster_oidc_issuer_url" {
 
 variable "permissions_boundary" {
   type        = string
-  description = "If provided, IAM role will be created with this permissions boundary attached"
+  description = "ARN of the policy that is used to set the permissions boundary for the role."
   default     = null
 }
