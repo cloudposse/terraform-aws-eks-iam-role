@@ -40,3 +40,9 @@ variable "eks_cluster_oidc_issuer_url" {
     error_message = "The eks_cluster_oidc_issuer_url value must have a value."
   }
 }
+
+variable "permissions_boundary" {
+  type        = string
+  description = "ARN of the policy that is used to set the permissions boundary for the role."
+  default     = null
+}
