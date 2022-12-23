@@ -1,13 +1,13 @@
 variable "service_account_name" {
   type        = string
   description = "Kubernetes ServiceAccount name"
-  default = null
+  default     = null
 }
 
 variable "service_account_namespace" {
   type        = string
   description = "Kubernetes Namespace where service account is deployed"
-  default = null
+  default     = null
 }
 
 variable "service_account_list_qualifier" {
