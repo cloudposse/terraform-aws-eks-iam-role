@@ -1,11 +1,29 @@
 variable "service_account_name" {
   type        = string
   description = "Kubernetes ServiceAccount name"
+  default = null
 }
 
 variable "service_account_namespace" {
   type        = string
   description = "Kubernetes Namespace where service account is deployed"
+  default = null
+}
+
+variable "service_account_list_qualifier" {
+  type        = string
+  description = "Kubernetes ServiceAccount list qualifier, must be one of `ForAllValues` or `ForAnyValue`"
+  validation {
+    condition     = contains(["ForAllValues", "ForAnyValue"], var.service_account_list_qualifier)
+    error_message = "Kubernetes ServiceAccount list qualifier must be one of `ForAllValues` or `ForAnyValue`"
+  }
+  default = "ForAnyValue"
+}
+
+variable "service_account_namespace_name_list" {
+  type        = list(string)
+  description = "List of `namespace:name` for service account"
+  default     = null
 }
 
 variable "aws_account_number" {
