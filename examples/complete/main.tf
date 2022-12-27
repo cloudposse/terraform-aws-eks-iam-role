@@ -21,7 +21,7 @@ module "autoscaler_role" {
 }
 
 module "autoscaler_role_multiple_service_accounts" {
-  source = "../.."
+  source     = "../.."
   attributes = ["multiple", "sa"]
 
   # Usually there is no need to add both service account methods of attachment.
