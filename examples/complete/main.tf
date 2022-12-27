@@ -7,8 +7,17 @@ data "aws_caller_identity" "current" {}
 module "autoscaler_role" {
   source = "../.."
 
+  # Singular Service Account attachment
   service_account_name      = "autoscaler"
   service_account_namespace = "kube-system"
+
+  # Usually there is no need to add both service account methods of attachment. But there is precluding you from doing so.
+  # Multiple Service Account attachments
+  service_account_namespace_name_list = [
+    "kube-system:autoscaler",
+    "default:foo",
+  ]
+  service_account_list_qualifier = "ForAnyValue"
 
   aws_account_number = data.aws_caller_identity.current.account_id
   # Rather than create a whole cluster, just fake the OIDC URL

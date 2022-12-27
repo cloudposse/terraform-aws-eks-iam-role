@@ -15,7 +15,7 @@ variable "service_account_list_qualifier" {
   description = "Kubernetes ServiceAccount list qualifier, must be one of `ForAllValues` or `ForAnyValue`"
   validation {
     condition     = contains(["ForAllValues", "ForAnyValue"], var.service_account_list_qualifier)
-    error_message = "Kubernetes ServiceAccount list qualifier must be one of `ForAllValues` or `ForAnyValue`"
+    error_message = "Kubernetes ServiceAccount list qualifier must be one of `ForAllValues` or `ForAnyValue`?"
   }
   default = "ForAnyValue"
 }
