@@ -22,7 +22,7 @@ variable "service_account_list_qualifier" {
 
 variable "service_account_namespace_name_list" {
   type        = list(string)
-  description = "List of `namespace:name` for service account"
+  description = "List of `namespace:name` for service account assume role IAM policy"
   default     = null
 }
 
