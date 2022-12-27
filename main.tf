@@ -74,10 +74,24 @@ data "aws_iam_policy_document" "service_account_assume_role" {
       identifiers = [format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, local.eks_cluster_oidc_issuer)]
     }
 
-    condition {
-      test     = "StringLike"
-      values   = [format("system:serviceaccount:%s:%s", coalesce(var.service_account_namespace, "*"), coalesce(var.service_account_name, "*"))]
-      variable = format("%s:sub", local.eks_cluster_oidc_issuer)
+    dynamic "condition" {
+      for_each = var.service_account_name != null && var.service_account_namespace != null ? ["true"] : []
+      content {
+        test = "StringLike"
+        values = [
+          format("system:serviceaccount:%s:%s", coalesce(var.service_account_namespace, "*"), coalesce(var.service_account_name, "*"))
+        ]
+        variable = format("%s:sub", local.eks_cluster_oidc_issuer)
+      }
+    }
+
+    dynamic "condition" {
+      for_each = var.service_account_namespace_name_list != null ? ["true"] : []
+      content {
+        test     = format("%s:StringLike", var.service_account_list_qualifier)
+        values   = formatlist("system:serviceaccount:%s", var.service_account_namespace_name_list)
+        variable = format("%s:sub", local.eks_cluster_oidc_issuer)
+      }
     }
   }
 }
