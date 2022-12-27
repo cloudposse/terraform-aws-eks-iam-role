@@ -11,7 +11,23 @@ module "autoscaler_role" {
   service_account_name      = "autoscaler"
   service_account_namespace = "kube-system"
 
-  # Usually there is no need to add both service account methods of attachment. But there is precluding you from doing so.
+  aws_account_number = data.aws_caller_identity.current.account_id
+  # Rather than create a whole cluster, just fake the OIDC URL
+  # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
+  eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
+  aws_iam_policy_document     = [data.aws_iam_policy_document.autoscaler.json]
+
+  context = module.this.context
+}
+
+module "autoscaler_role_multiple_service_accounts" {
+  source = "../.."
+  attributes = ["multiple", "sa"]
+
+  # Usually there is no need to add both service account methods of attachment.
+  # If you add both, they are joined via AND.
+  # See https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_multi-value-conditions.html#reference_policies_multiple-conditions-eval
+
   # Multiple Service Account attachments
   service_account_namespace_name_list = [
     "kube-system:autoscaler",
@@ -27,7 +43,6 @@ module "autoscaler_role" {
 
   context = module.this.context
 }
-
 data "aws_iam_policy_document" "autoscaler" {
   statement {
     sid = "AllowToScaleEKSNodeGroupAutoScalingGroup"
