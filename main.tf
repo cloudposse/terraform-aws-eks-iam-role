@@ -93,6 +93,11 @@ data "aws_iam_policy_document" "service_account_assume_role" {
         variable = format("%s:sub", local.eks_cluster_oidc_issuer)
       }
     }
+    condition {
+      test     = "StringEquals"
+      values   = ["sts.amazonaws.com"]
+      variable = format("%s:aud", local.eks_cluster_oidc_issuer)
+    }
   }
 }
 
