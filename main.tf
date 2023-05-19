@@ -24,8 +24,16 @@ locals {
   # and the policy will use wildcards for both the namespace and the service account name in the test condition to allow all ServiceAccounts
   # in all Kubernetes namespaces to assume the IAM role (not recommended).
 
-  service_account_long_id = format("%v@%v", coalesce(var.service_account_name, "all"), coalesce(var.service_account_namespace, "all"))
-  service_account_id      = trimsuffix(local.service_account_long_id, format("@%v", var.service_account_name))
+
+  single_service_account = var.service_account_name == null && var.service_account_namespace == null && length(var.service_account_namespace_name_list) > 0 ? [] : [
+    format("%s:%s", coalesce(var.service_account_namespace, "*"), coalesce(var.service_account_name, "*"))
+  ]
+  service_account_namespace_name_list = concat(local.single_service_account, var.service_account_namespace_name_list)
+
+  role_name_service_account_name = replace(split(":", local.service_account_namespace_name_list[0])[1], "*", "all")
+  role_name_namespace            = replace(split(":", local.service_account_namespace_name_list[0])[0], "*", "all")
+  service_account_long_id        = format("%v@%v", local.role_name_service_account_name, local.role_name_namespace)
+  service_account_id             = trimsuffix(local.service_account_long_id, format("@%v", local.role_name_service_account_name))
 
   # Try to return the first element, if that doesn't work, try the tostring approach
   aws_iam_policy_document = try(var.aws_iam_policy_document[0], tostring(var.aws_iam_policy_document), "{}")
@@ -46,6 +54,7 @@ module "service_account_label" {
 
   # The standard module does not allow @ but we want it
   regex_replace_chars = "/[^-a-zA-Z0-9@_]/"
+  id_length_limit     = 64
 
   context = module.this.context
 }
@@ -74,24 +83,16 @@ data "aws_iam_policy_document" "service_account_assume_role" {
       identifiers = [format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, local.eks_cluster_oidc_issuer)]
     }
 
-    dynamic "condition" {
-      for_each = var.service_account_name != null && var.service_account_namespace != null ? ["true"] : []
-      content {
-        test = "StringLike"
-        values = [
-          format("system:serviceaccount:%s:%s", coalesce(var.service_account_namespace, "*"), coalesce(var.service_account_name, "*"))
-        ]
-        variable = format("%s:sub", local.eks_cluster_oidc_issuer)
-      }
-    }
+    condition {
+      test     = "StringLike"
+      values   = formatlist("system:serviceaccount:%s", local.service_account_namespace_name_list)
+      variable = format("%s:sub", local.eks_cluster_oidc_issuer)
 
-    dynamic "condition" {
-      for_each = var.service_account_namespace_name_list != null ? ["true"] : []
-      content {
-        test     = format("%s:StringLike", var.service_account_list_qualifier)
-        values   = formatlist("system:serviceaccount:%s", var.service_account_namespace_name_list)
-        variable = format("%s:sub", local.eks_cluster_oidc_issuer)
-      }
+    }
+    condition {
+      test     = "StringEquals"
+      values   = ["sts.amazonaws.com"]
+      variable = format("%s:aud", local.eks_cluster_oidc_issuer)
     }
   }
 }
