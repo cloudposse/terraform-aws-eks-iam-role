@@ -45,6 +45,7 @@ module "multiple_service_accounts_short" {
   context = module.this.context
 }
 data "aws_iam_policy_document" "autoscaler" {
+  #bridgecrew:skip=BC_AWS_IAM_57:Skipping `Ensure IAM policies does not allow write access without constraint` because this is a test case
   count = local.enabled ? 1 : 0
 
   statement {
@@ -108,6 +109,7 @@ module "cert-manager_role" {
 }
 
 data "aws_iam_policy_document" "cert-manager" {
+  #bridgecrew:skip=BC_AWS_IAM_57:Skipping `Ensure IAM policies does not allow write access without constraint` because this is a test case
   count = local.enabled ? 1 : 0
 
   statement {
