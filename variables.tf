@@ -1,29 +1,27 @@
 variable "service_account_name" {
   type        = string
-  description = "Kubernetes ServiceAccount name"
+  description = <<-EOT
+    Kubernetes ServiceAccount name.
+    Leave empty or set to "*" to indicate all Service Accounts, or if using `service_account_namespace_name_list`.
+    EOT
   default     = null
 }
 
 variable "service_account_namespace" {
   type        = string
-  description = "Kubernetes Namespace where service account is deployed"
+  description = <<-EOT
+    Kubernetes Namespace where service account is deployed. Leave empty or set to "*" to indicate all Namespaces,
+    or if using `service_account_namespace_name_list`.
+    EOT
   default     = null
-}
-
-variable "service_account_list_qualifier" {
-  type        = string
-  description = "Kubernetes ServiceAccount list qualifier, must be one of `ForAllValues` or `ForAnyValue`"
-  validation {
-    condition     = contains(["ForAllValues", "ForAnyValue"], var.service_account_list_qualifier)
-    error_message = "Kubernetes ServiceAccount list qualifier must be one of `ForAllValues` or `ForAnyValue`."
-  }
-  default = "ForAnyValue"
 }
 
 variable "service_account_namespace_name_list" {
   type        = list(string)
-  description = "List of `namespace:name` for service account assume role IAM policy"
-  default     = null
+  description = <<-EOT
+    List of `namespace:name` for service account assume role IAM policy if you need more than one. May include wildcards.
+    EOT
+  default     = []
 }
 
 variable "aws_account_number" {

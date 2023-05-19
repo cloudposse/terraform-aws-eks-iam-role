@@ -3,7 +3,15 @@ output "autoscaler_role" {
 }
 
 output "autoscaler_policy" {
-  value = data.aws_iam_policy.autoscaler.policy
+  value = one(data.aws_iam_policy.autoscaler[*].policy)
+}
+
+output "multiple_service_accounts_role_short" {
+  value = module.multiple_service_accounts_short.service_account_role_name
+}
+
+output "multiple_service_accounts_role_long" {
+  value = module.multiple_service_accounts_long.service_account_role_name
 }
 
 output "cert-manager_role" {
@@ -11,5 +19,5 @@ output "cert-manager_role" {
 }
 
 output "cert-manager_policy" {
-  value = data.aws_iam_policy.cert-manager.policy
+  value = one(data.aws_iam_policy.cert-manager[*].policy)
 }

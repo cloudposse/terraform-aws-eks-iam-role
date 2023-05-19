@@ -2,6 +2,10 @@ provider "aws" {
   region = var.region
 }
 
+locals {
+  enabled = module.this.enabled
+}
+
 data "aws_caller_identity" "current" {}
 
 module "autoscaler_role" {
@@ -20,20 +24,15 @@ module "autoscaler_role" {
   context = module.this.context
 }
 
-module "autoscaler_role_multiple_service_accounts" {
-  source     = "../.."
-  attributes = ["multiple", "sa"]
+module "multiple_service_accounts_short" {
+  source = "../.."
 
-  # Usually there is no need to add both service account methods of attachment.
-  # If you add both, they are joined via AND.
-  # See https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_multi-value-conditions.html#reference_policies_multiple-conditions-eval
-
+  # Test the rare case multiple service accounts are attached to the same role
   # Multiple Service Account attachments
   service_account_namespace_name_list = [
-    "kube-system:autoscaler",
-    "default:foo",
+    "app:app",
+    "pr-*:app",
   ]
-  service_account_list_qualifier = "ForAnyValue"
 
   aws_account_number = data.aws_caller_identity.current.account_id
   # Rather than create a whole cluster, just fake the OIDC URL
@@ -63,7 +62,28 @@ data "aws_iam_policy_document" "autoscaler" {
 }
 
 data "aws_iam_policy" "autoscaler" {
+  count = local.enabled ? 1 : 0
+
   arn = module.autoscaler_role.service_account_policy_arn
+}
+
+module "multiple_service_accounts_long" {
+  source = "../.."
+
+  # Test the rare case multiple service accounts are attached to the same role
+  # Multiple Service Account attachments
+  service_account_namespace_name_list = [
+    "very-long-namespace:even-longer-service-account-name",
+    "app:app",
+  ]
+
+  aws_account_number = data.aws_caller_identity.current.account_id
+  # Rather than create a whole cluster, just fake the OIDC URL
+  # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
+  eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
+  aws_iam_policy_document     = [data.aws_iam_policy_document.autoscaler.json]
+
+  context = module.this.context
 }
 
 module "cert-manager_role" {
@@ -97,5 +117,6 @@ data "aws_iam_policy_document" "cert-manager" {
 }
 
 data "aws_iam_policy" "cert-manager" {
-  arn = module.cert-manager_role.service_account_policy_arn
+  count = local.enabled ? 1 : 0
+  arn   = module.cert-manager_role.service_account_policy_arn
 }
