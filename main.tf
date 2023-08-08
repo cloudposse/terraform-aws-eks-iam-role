@@ -1,7 +1,7 @@
 locals {
   enabled = module.this.enabled
 
-  eks_cluster_oidc_issuer = replace(var.eks_cluster_oidc_issuer_url, "https://", "")
+  eks_cluster_oidc_issuer = local.enabled ? replace(var.eks_cluster_oidc_issuer_url, "https://", "") : ""
 
   aws_account_number = local.enabled ? coalesce(var.aws_account_number, data.aws_caller_identity.current[0].account_id) : ""
 
@@ -93,6 +93,13 @@ data "aws_iam_policy_document" "service_account_assume_role" {
       test     = "StringEquals"
       values   = ["sts.amazonaws.com"]
       variable = format("%s:aud", local.eks_cluster_oidc_issuer)
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition     = length(local.eks_cluster_oidc_issuer) > 0
+      error_message = "The eks_cluster_oidc_issuer_url value must have a value."
     }
   }
 }
