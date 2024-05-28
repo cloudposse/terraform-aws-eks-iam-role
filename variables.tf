@@ -47,6 +47,12 @@ variable "aws_iam_policy_document" {
     EOT
 }
 
+variable "managed_policy_arns" {
+  type        = set(string)
+  description = "List of managed policies to attach to created role"
+  default     = []
+}
+
 variable "eks_cluster_oidc_issuer_url" {
   type        = string
   description = "OIDC issuer URL for the EKS cluster (initial \"https://\" may be omitted)"
