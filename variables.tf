@@ -57,3 +57,9 @@ variable "permissions_boundary" {
   description = "ARN of the policy that is used to set the permissions boundary for the role."
   default     = null
 }
+
+variable "managed_policy_arns" {
+  type        = set(string)
+  description = "List of managed policies to attach to created role"
+  default     = []
+}

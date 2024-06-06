@@ -117,3 +117,9 @@ resource "aws_iam_role_policy_attachment" "service_account" {
   role       = aws_iam_role.service_account[0].name
   policy_arn = aws_iam_policy.service_account[0].arn
 }
+
+resource "aws_iam_role_policy_attachment" "managed" {
+  for_each   = local.enabled ? var.managed_policy_arns : []
+  role       = aws_iam_role.service_account[0].name
+  policy_arn = each.key
+}
