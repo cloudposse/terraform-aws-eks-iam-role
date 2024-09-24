@@ -85,16 +85,22 @@ data "aws_iam_policy_document" "service_account_assume_role" {
       identifiers = [ for url in local.all_cluster_oidc_issuers: format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, url) ]
     }
 
-    condition {
-      test     = "StringLike"
-      values   = formatlist("system:serviceaccount:%s", local.service_account_namespace_name_list)
-      variable = [ for url in local.all_cluster_oidc_issuers: format("%s:sub", url) ]
-
+    dynamic "condition" {
+      for_each = local.all_cluster_oidc_issuers
+      content {
+        test     = "StringLike"
+        values   = formatlist("system:serviceaccount:%s", local.service_account_namespace_name_list)
+        variable = format("%s:sub", condition.value)
+      }
     }
-    condition {
-      test     = "StringEquals"
-      values   = ["sts.amazonaws.com"]
-      variable = [ for url in local.all_cluster_oidc_issuers: format("%s:aud", url) ]
+
+    dynamic "condition" {
+      for_each = local.all_cluster_oidc_issuers
+      content {
+        test     = "StringEquals"
+        values   = ["sts.amazonaws.com"]
+        variable = format("%s:aud", condition.value)
+      }
     }
   }
 
