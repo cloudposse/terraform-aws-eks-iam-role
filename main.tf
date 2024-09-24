@@ -2,6 +2,8 @@ locals {
   enabled = module.this.enabled
 
   eks_cluster_oidc_issuer = local.enabled ? replace(var.eks_cluster_oidc_issuer_url, "https://", "") : ""
+  eks_cluster_oidc_issuers = local.enabled ? [for url in var.eks_cluster_oidc_issuer_urls: replace(url, "https://", "")] : []
+  all_cluster_oidc_issuers = local.enabled ? concat([local.eks_cluster_oidc_issuer], local.eks_cluster_oidc_issuers) : []
 
   aws_account_number = local.enabled ? coalesce(var.aws_account_number, data.aws_caller_identity.current[0].account_id) : ""
 
@@ -80,19 +82,19 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 
     principals {
       type        = "Federated"
-      identifiers = [format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, local.eks_cluster_oidc_issuer)]
+      identifiers = [ for url in local.all_cluster_oidc_issuers: format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, url) ]
     }
 
     condition {
       test     = "StringLike"
       values   = formatlist("system:serviceaccount:%s", local.service_account_namespace_name_list)
-      variable = format("%s:sub", local.eks_cluster_oidc_issuer)
+      variable = [ for url in local.all_cluster_oidc_issuers: format("%s:sub", url) ]
 
     }
     condition {
       test     = "StringEquals"
       values   = ["sts.amazonaws.com"]
-      variable = format("%s:aud", local.eks_cluster_oidc_issuer)
+      variable = [ for url in local.all_cluster_oidc_issuers: format("%s:aud", url) ]
     }
   }
 

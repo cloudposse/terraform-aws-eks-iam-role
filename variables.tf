@@ -52,6 +52,11 @@ variable "eks_cluster_oidc_issuer_url" {
   description = "OIDC issuer URL for the EKS cluster (initial \"https://\" may be omitted)"
 }
 
+variable "eks_cluster_oidc_issuer_urls" {
+  type        = set(string)
+  description = "OIDC issuer URLs for the EKS cluster (initial \"https://\" may be omitted)"
+}
+
 variable "permissions_boundary" {
   type        = string
   description = "ARN of the policy that is used to set the permissions boundary for the role."
