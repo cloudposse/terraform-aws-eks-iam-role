@@ -20,7 +20,7 @@ module "autoscaler_role" {
   aws_account_number = one(data.aws_caller_identity.current[*].account_id)
   # Rather than create a whole cluster, just fake the OIDC URL
   # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
-  eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
+  eks_cluster_oidc_issuer_urls = ["https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"]
   aws_iam_policy_document     = [one(data.aws_iam_policy_document.autoscaler[*].json)]
 
   context = module.this.context
@@ -39,7 +39,7 @@ module "multiple_service_accounts_short" {
   aws_account_number = one(data.aws_caller_identity.current[*].account_id)
   # Rather than create a whole cluster, just fake the OIDC URL
   # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
-  eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
+  eks_cluster_oidc_issuer_urls = ["https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"]
   aws_iam_policy_document     = [one(data.aws_iam_policy_document.autoscaler[*].json)]
 
   context = module.this.context
@@ -85,7 +85,7 @@ module "multiple_service_accounts_long" {
   aws_account_number = one(data.aws_caller_identity.current[*].account_id)
   # Rather than create a whole cluster, just fake the OIDC URL
   # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
-  eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
+  eks_cluster_oidc_issuer_urls = ["https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"]
   aws_iam_policy_document     = [one(data.aws_iam_policy_document.autoscaler[*].json)]
 
   context = module.this.context
@@ -102,7 +102,7 @@ module "cert-manager_role" {
   aws_account_number = one(data.aws_caller_identity.current[*].account_id)
   # Rather than create a whole cluster, just fake the OIDC URL
   # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
-  eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
+  eks_cluster_oidc_issuer_urls = ["https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"]
   aws_iam_policy_document     = [one(data.aws_iam_policy_document.cert-manager[*].json)]
 
   context = module.this.context
