@@ -1,9 +1,7 @@
 locals {
   enabled = module.this.enabled
 
-  eks_cluster_oidc_issuer = local.enabled ? replace(var.eks_cluster_oidc_issuer_url, "https://", "") : ""
   eks_cluster_oidc_issuers = local.enabled ? [for url in var.eks_cluster_oidc_issuer_urls: replace(url, "https://", "")] : []
-  all_cluster_oidc_issuers = local.enabled ? concat([local.eks_cluster_oidc_issuer], local.eks_cluster_oidc_issuers) : []
 
   aws_account_number = local.enabled ? coalesce(var.aws_account_number, data.aws_caller_identity.current[0].account_id) : ""
 
@@ -82,11 +80,11 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 
     principals {
       type        = "Federated"
-      identifiers = [ for url in local.all_cluster_oidc_issuers: format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, url) ]
+      identifiers = [ for url in local.eks_cluster_oidc_issuers: format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, url) ]
     }
 
     dynamic "condition" {
-      for_each = local.all_cluster_oidc_issuers
+      for_each = local.eks_cluster_oidc_issuers
       content {
         test     = "StringLike"
         values   = formatlist("system:serviceaccount:%s", local.service_account_namespace_name_list)
@@ -95,7 +93,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
     }
 
     dynamic "condition" {
-      for_each = local.all_cluster_oidc_issuers
+      for_each = local.eks_cluster_oidc_issuers
       content {
         test     = "StringEquals"
         values   = ["sts.amazonaws.com"]
@@ -106,7 +104,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 
   lifecycle {
     precondition {
-      condition     = length(local.eks_cluster_oidc_issuer) > 0
+      condition     = length(local.eks_cluster_oidc_issuers) > 0
       error_message = "The eks_cluster_oidc_issuer_url value must have a value."
     }
   }

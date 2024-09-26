@@ -47,11 +47,6 @@ variable "aws_iam_policy_document" {
     EOT
 }
 
-variable "eks_cluster_oidc_issuer_url" {
-  type        = string
-  description = "OIDC issuer URL for the EKS cluster (initial \"https://\" may be omitted)"
-}
-
 variable "eks_cluster_oidc_issuer_urls" {
   type        = set(string)
   description = "OIDC issuer URLs for the EKS cluster (initial \"https://\" may be omitted)"
