@@ -1,7 +1,7 @@
 locals {
   enabled = module.this.enabled
 
-  eks_cluster_oidc_issuers = local.enabled ? [for url in var.eks_cluster_oidc_issuer_urls: replace(url, "https://", "")] : []
+  eks_cluster_oidc_issuers = local.enabled ? [for url in var.eks_cluster_oidc_issuer_urls : replace(url, "https://", "")] : []
 
   aws_account_number = local.enabled ? coalesce(var.aws_account_number, data.aws_caller_identity.current[0].account_id) : ""
 
@@ -80,7 +80,7 @@ data "aws_iam_policy_document" "service_account_assume_role" {
 
     principals {
       type        = "Federated"
-      identifiers = [ for url in local.eks_cluster_oidc_issuers: format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, url) ]
+      identifiers = [for url in local.eks_cluster_oidc_issuers : format("arn:%s:iam::%s:oidc-provider/%s", var.aws_partition, local.aws_account_number, url)]
     }
 
     dynamic "condition" {
