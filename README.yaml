@@ -60,8 +60,16 @@ description: |-
   [AWS EKS Service Account IAM roles](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html).
 
 # Introduction to the project
-#introduction: |-
-#  This is an introduction.
+introduction: |-
+  ### EKS Auto Mode Compatibility
+
+  IRSA (IAM Roles for Service Accounts) created by this module continues to work on
+  [EKS Auto Mode](https://docs.aws.amazon.com/eks/latest/userguide/automode.html) clusters.
+
+  For new Auto Mode deployments, consider
+  [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html)
+  as an alternative -- it is simpler to configure and does not require OIDC provider management.
+  Both IRSA and Pod Identity can coexist on the same cluster during migration.
 
 # How to use this module. Should be an easy example to copy and paste.
 usage: |-
