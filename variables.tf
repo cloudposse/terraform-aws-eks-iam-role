@@ -47,6 +47,13 @@ variable "aws_iam_policy_document" {
     EOT
 }
 
+variable "iam_policy_enabled" {
+  type        = bool
+  default     = null
+  nullable    = true
+  description = "Whether to create and attach the IAM policy. When null, infer from aws_iam_policy_document for backward compatibility."
+}
+
 variable "eks_cluster_oidc_issuer_url" {
   type        = string
   description = "OIDC issuer URL for the EKS cluster (initial \"https://\" may be omitted)"

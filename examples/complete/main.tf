@@ -22,6 +22,7 @@ module "autoscaler_role" {
   # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
   eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
   aws_iam_policy_document     = [one(data.aws_iam_policy_document.autoscaler[*].json)]
+  iam_policy_enabled          = true
 
   context = module.this.context
 }
@@ -41,6 +42,7 @@ module "multiple_service_accounts_short" {
   # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
   eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
   aws_iam_policy_document     = [one(data.aws_iam_policy_document.autoscaler[*].json)]
+  iam_policy_enabled          = true
 
   context = module.this.context
 }
@@ -87,6 +89,7 @@ module "multiple_service_accounts_long" {
   # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
   eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
   aws_iam_policy_document     = [one(data.aws_iam_policy_document.autoscaler[*].json)]
+  iam_policy_enabled          = true
 
   context = module.this.context
 }
@@ -104,6 +107,7 @@ module "cert-manager_role" {
   # eks_cluster_oidc_issuer_url = module.eks_cluster.eks_cluster_identity_oidc_issuer
   eks_cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/FEDCBA9876543210FEDCBA9876543210"
   aws_iam_policy_document     = [one(data.aws_iam_policy_document.cert-manager[*].json)]
+  iam_policy_enabled          = true
 
   context = module.this.context
 }

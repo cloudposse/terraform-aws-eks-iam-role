@@ -37,7 +37,10 @@ locals {
 
   # Try to return the first element, if that doesn't work, try the tostring approach
   aws_iam_policy_document = try(var.aws_iam_policy_document[0], tostring(var.aws_iam_policy_document), "{}")
-  iam_policy_enabled      = local.enabled && length(var.aws_iam_policy_document) > 0
+
+  iam_policy_enabled = var.iam_policy_enabled != null
+    ? var.iam_policy_enabled
+    : length(var.aws_iam_policy_document) > 0
 }
 
 data "aws_caller_identity" "current" {
